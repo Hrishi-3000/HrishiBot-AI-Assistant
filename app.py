@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask, request, jsonify, render_template
 import os
+from datetime import datetime  # Add this
 from google.generativeai import configure, GenerativeModel
 
 app = Flask(__name__)
