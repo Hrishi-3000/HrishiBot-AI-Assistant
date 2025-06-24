@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HrishiBot - AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Light Theme */
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --background: #f8f9ff;
+            --card: #ffffff;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --error: #ef233c;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            
+            /* Animation */
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .dark-mode {
+            /* Dark Theme */
+            --primary: #4895ef;
+            --primary-light: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --background: #121212;
+            --card: #1e1e1e;
+            --text: #e0e0e0;
+            --text-light: #a0a0a0;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --error: #ef233c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            transition: var(--transition);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem;
+            gap: 1.5rem;
+            position: relative;
+            height: calc(100vh - 80px);
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: var(--transition);
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            background-color: var(--primary-light);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            max-height: calc(100% - 120px);
+        }
+
+        /* Messages */
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+
+        .message-user {
+            align-items: flex-end;
+            margin-left: auto;
+        }
+
+        .message-bot {
+            align-items: flex-start;
+            margin-right: auto;
+        }
+
+        .message-content {
+            padding: 0.85rem 1.25rem;
+            border-radius: 18px;
+            word-wrap: break-word;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-message {
+            background-color: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            background-color: var(--card);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dark-mode .bot-message {
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .message-timestamp {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin: 0.3rem 0.5rem;
+        }
+
+        /* Input Area */
+        .input-container {
+            padding: 1rem;
+            background-color: var(--card);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 0.75rem;
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        .dark-mode .input-container {
+            border-top-color: rgba(255,255,255,0.05);
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 0.85rem 1.25rem;
+            border: none;
+            border-radius: 24px;
+            background-color: var(--background);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        #message-input:focus {
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .input-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: var(--background);
+            color: var(--primary);
+        }
+
+        .btn-send {
+            background-color: var(--accent);
+        }
+
+        .btn-voice {
+            position: relative;
+        }
+
+        /* Voice Recording Animation */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 35, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 35, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 35, 60, 0); }
+        }
+
+        .recording {
+            background-color: var(--error) !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            margin-bottom: 5px;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 10px;
+        }
+
+        .dark-mode ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 0.75rem;
+            }
+            
+            .chat-container {
+                border-radius: 0;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .btn {
+                width: 42px;
+                height: 42px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="logo-text">
+                <h1>HrishiBot</h1>
+                <p>Your AI Assistant</p>
+            </div>
+        </div>
+        <div class="toolbar">
+            <a href="https://github.com/Hrishi-3000" class="btn btn-secondary tooltip" target="_blank" rel="noopener noreferrer" data-tooltip="GitHub">
+        <i class="fab fa-github"></i>
+    </a>
+    <a href="https://www.linkedin.com/in/hrishikesh-shahane-a0a19a258/" class="btn btn-secondary tooltip" target="_blank" rel="noopener noreferrer" data-tooltip="LinkedIn">
+        <i class="fab fa-linkedin-in"></i>
+    </a>
+    <a href="https://hrishikesh-shahane-portfolio.vercel.app/" class="btn btn-secondary tooltip" target="_blank" rel="noopener noreferrer" data-tooltip="Portfolio">
+        <i class="fas fa-user"></i>
+    </a>
+            <button class="btn btn-secondary tooltip" id="dark-mode-button" data-tooltip="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-secondary tooltip" id="help-button" data-tooltip="Help">
+                <i class="fas fa-question"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">Conversation</div>
+                <div class="chat-actions">
+                    <button class="btn btn-secondary tooltip" id="clear-button" data-tooltip="Clear Chat">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button class="btn btn-secondary tooltip" id="export-button" data-tooltip="Export Chat">
+                        <i class="fas fa-file-export"></i>
+                    </button>
+                    <button class="btn btn-secondary tooltip" id="mute-button" data-tooltip="Toggle Voice">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-history" id="chat-history">
+                {% if not chat_history %}
+                <div class="welcome-message">
+                    <h3>Welcome to HrishiBot!</h3>
+                    <p>Start chatting with your AI assistant by typing a message below</p>
+                </div>
+                {% endif %}
+                
+                {% for message in chat_history %}
+                    <div class="message message-{{ message.sender }}">
+                        <div class="message-content {{ message.sender }}-message">
+                            {{ message.message }}
+                        </div>
+                        <div class="message-timestamp">{{ message.timestamp }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="input-container">
+                <button class="btn btn-voice tooltip" id="voice-button" data-tooltip="Voice Input">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input type="text" id="message-input" placeholder="Type your message here..." autocomplete="off">
+                <button class="btn btn-send" id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const chatHistory = document.getElementById('chat-history');
+            const voiceButton = document.getElementById('voice-button');
+            const darkModeButton = document.getElementById('dark-mode-button');
+            const exportButton = document.getElementById('export-button');
+            const muteButton = document.getElementById('mute-button');
+            const helpButton = document.getElementById('help-button');
+            const clearButton = document.getElementById('clear-button');
+
+            // State variables
+            let isDarkMode = localStorage.getItem('darkMode') === 'true';
+            let isMuted = localStorage.getItem('isMuted') === 'true';
+            let recognition = null;
+            let isRecording = false;
+
+            // Initialize UI
+            updateDarkMode();
+            updateMuteButton();
+
+            // Add message to chat
+            function addMessage(sender, message) {
+                // Remove welcome message if it exists
+                const welcomeMsg = document.querySelector('.welcome-message');
+                if (welcomeMsg) welcomeMsg.remove();
+                
+                const now = new Date();
+                const timestamp = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message message-${sender}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = `message-content ${sender}-message`;
+                contentDiv.textContent = message;
+                
+                const timestampDiv = document.createElement('div');
+                timestampDiv.className = 'message-timestamp';
+                timestampDiv.textContent = timestamp;
+                
+                messageDiv.appendChild(contentDiv);
+                messageDiv.appendChild(timestampDiv);
+                chatHistory.appendChild(messageDiv);
+                
+                // Scroll to bottom with smooth behavior
+                chatHistory.scrollTo({
+                    top: chatHistory.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+
+            // Send message to server
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    addMessage('user', message);
+                    messageInput.value = '';
+                    
+                    fetch('/send_message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `message=${encodeURIComponent(message)}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            addMessage('bot', data.response);
+                            if (!isMuted) {
+                                speak(data.response);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        addMessage('bot', '❌ Error connecting to server');
+                        console.error('Error:', error);
+                    });
+                }
+            }
+
+            // Clear chat function
+            function clearChat() {
+                if (confirm('Are you sure you want to clear the chat history?')) {
+                    chatHistory.innerHTML = `
+                        <div class="welcome-message">
+                            <h3>Welcome to HrishiBot!</h3>
+                            <p>Start chatting with your AI assistant by typing a message below</p>
+                        </div>
+                    `;
+                    
+                    // Optionally clear server-side history
+                    fetch('/clear_chat', {
+                        method: 'POST'
+                    }).catch(error => {
+                        console.error('Error clearing chat:', error);
+                    });
+                }
+            }
+
+            // Text-to-speech function
+            function speak(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.1;
+                    utterance.volume = 1.0;
+                    
+                    // Try to find a pleasant voice
+                    const voices = window.speechSynthesis.getVoices();
+                    const preferredVoices = ['Google UK English Female', 'Microsoft Zira Desktop'];
+                    for (const voiceName of preferredVoices) {
+                        const voice = voices.find(v => v.name.includes(voiceName));
+                        if (voice) {
+                            utterance.voice = voice;
+                            break;
+                        }
+                    }
+                    
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+
+            // Initialize voice recognition
+            function initVoiceRecognition() {
+                try {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    if (SpeechRecognition) {
+                        recognition = new SpeechRecognition();
+                        recognition.continuous = false;
+                        recognition.interimResults = false;
+                        recognition.lang = 'en-US';
+                        
+                        recognition.onstart = function() {
+                            isRecording = true;
+                            voiceButton.classList.add('recording');
+                        };
+                        
+                        recognition.onresult = function(event) {
+                            const transcript = event.results[0][0].transcript;
+                            messageInput.value = transcript;
+                            sendMessage();
+                        };
+                        
+                        recognition.onerror = function(event) {
+                            console.error('Speech recognition error', event.error);
+                            addMessage('bot', `❌ Voice input error: ${event.error}`);
+                        };
+                        
+                        recognition.onend = function() {
+                            isRecording = false;
+                            voiceButton.classList.remove('recording');
+                        };
+                    } else {
+                        addMessage('bot', '❌ Voice recognition not supported in your browser');
+                    }
+                } catch (e) {
+                    console.error('Voice recognition initialization error:', e);
+                    addMessage('bot', '❌ Error initializing voice recognition');
+                }
+            }
+
+            // Toggle dark mode
+            function toggleDarkMode() {
+                isDarkMode = !isDarkMode;
+                localStorage.setItem('darkMode', isDarkMode);
+                updateDarkMode();
+            }
+
+            function updateDarkMode() {
+                if (isDarkMode) {
+                    document.body.classList.add('dark-mode');
+                    darkModeButton.innerHTML = '<i class="fas fa-sun"></i>';
+                    darkModeButton.setAttribute('data-tooltip', 'Light Mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    darkModeButton.innerHTML = '<i class="fas fa-moon"></i>';
+                    darkModeButton.setAttribute('data-tooltip', 'Dark Mode');
+                }
+            }
+
+            // Toggle mute
+            function toggleMute() {
+                isMuted = !isMuted;
+                localStorage.setItem('isMuted', isMuted);
+                updateMuteButton();
+            }
+
+            function updateMuteButton() {
+                if (isMuted) {
+                    muteButton.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    muteButton.setAttribute('data-tooltip', 'Unmute Voice');
+                } else {
+                    muteButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    muteButton.setAttribute('data-tooltip', 'Mute Voice');
+                }
+            }
+
+            // Export chat
+            function exportChat() {
+                const messages = Array.from(document.querySelectorAll('.message-content')).map(el => {
+                    const sender = el.classList.contains('user-message') ? 'You' : 'HrishiBot';
+                    const timestamp = el.nextElementSibling.textContent;
+                    return `[${timestamp}] ${sender}: ${el.textContent}`;
+                }).join('\n\n');
+                
+                const blob = new Blob([messages], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hrishibot-chat-${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Show confirmation
+                const notification = document.createElement('div');
+                notification.textContent = 'Chat exported successfully!';
+                notification.style.position = 'fixed';
+                notification.style.bottom = '20px';
+                notification.style.right = '20px';
+                notification.style.backgroundColor = 'var(--success)';
+                notification.style.color = 'white';
+                notification.style.padding = '10px 20px';
+                notification.style.borderRadius = '4px';
+                notification.style.boxShadow = 'var(--shadow-md)';
+                notification.style.zIndex = '1000';
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => document.body.removeChild(notification), 300);
+                }, 2000);
+            }
+
+            // Show help
+            function showHelp() {
+                const helpMessage = `🌟 HrishiBot Help 🌟
+
+🔹 Voice Commands:
+Click the microphone button to speak to me
+
+🔹 Text Commands:
+/clear - Clear chat history
+/mute - Toggle voice responses
+/help - Show this help message
+/about - Show information about me
+
+🔹 Features:
+• Dark/Light mode toggle
+• Export conversation to text file
+• Voice input and output
+• Context-aware responses`;
+
+                addMessage('bot', helpMessage);
+            }
+
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            voiceButton.addEventListener('click', function() {
+                if (!recognition) {
+                    initVoiceRecognition();
+                }
+                
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error('Voice recognition error:', e);
+                        addMessage('bot', '❌ Error starting voice recognition');
+                    }
+                }
+            });
+            darkModeButton.addEventListener('click', toggleDarkMode);
+            muteButton.addEventListener('click', toggleMute);
+            exportButton.addEventListener('click', exportChat);
+            helpButton.addEventListener('click', showHelp);
+            clearButton.addEventListener('click', clearChat);
+
+            // Initialize speech synthesis voices
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = function() {
+                    // Voices are now loaded
+                };
+            }
+        });
+    </script>
+</body>
+</html>
