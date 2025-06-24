@@ -230,20 +230,27 @@ hrishibot = HrishiBotWeb()
 @app.route("/")
 def home():
     return render_template("index.html", chat_history=hrishibot.chat_history)
-
-@app.route("/chat", methods=["POST"])
+@app.route('/chat', methods=['POST'])
 def chat():
-    message = request.form.get("message", "").strip()
-    if message:
-        response = hrishibot.process_message(message)
+    try:
+        if not request.is_json:
+            return jsonify({"status": "error", "message": "Missing JSON"}), 400
+            
+        user_message = request.json.get('message')
+        if not user_message:
+            return jsonify({"status": "error", "message": "Empty message"}), 400
+            
+        response = model.generate_content(user_message)
         return jsonify({
             "status": "success",
-            "response": response,
-            "chat_history": hrishibot.chat_history
+            "response": response.text
         })
-    return jsonify({"status": "error", "message": "Empty message"})
-
-@app.route("/clear_chat", methods=["POST"])
+        
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 def clear_chat():
     hrishibot.chat_history = []
     hrishibot.conversation_context = []
