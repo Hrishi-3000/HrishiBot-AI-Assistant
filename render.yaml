@@ -1,0 +1,10 @@
+# render.yaml (commit to your repo)
+services:
+  - type: web
+    name: hrishibot
+    runtime: python  # or "node" if using JS
+    buildCommand: pip install -r requirements.txt  # or "npm install" for Node
+    startCommand: gunicorn app:app  # or "node server.js"
+    envVars:
+      - key: GOOGLE_API_KEY
+        value: your_key_here
