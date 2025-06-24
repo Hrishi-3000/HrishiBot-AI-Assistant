@@ -536,18 +536,7 @@
     }
   }
 }
-// Update your fetch URL to use the full Vercel URL
-const API_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:3000/api/chat' 
-  : 'https://hrishi-bot-ai-assistant.vercel.app//api/chat';
 
-fetch(API_URL, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({message: message})
-})
             // Clear chat function
             function clearChat() {
                 if (confirm('Are you sure you want to clear the chat history?')) {
