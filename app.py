@@ -1,18 +1,7 @@
 # app.py
-from flask import Flask, render_template, request, jsonify
-from datetime import datetime
-import requests
+from flask import Flask, request, jsonify, render_template
 import os
-
-import html2text
-import re
-from bs4 import BeautifulSoup
-import subprocess
-import time
-import platform
-import webbrowser
-from fpdf import FPDF
-import speech_recognition as sr
+from google.generativeai import configure, GenerativeModel
 
 app = Flask(__name__)
 
