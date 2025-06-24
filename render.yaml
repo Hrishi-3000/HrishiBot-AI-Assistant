@@ -7,4 +7,4 @@ services:
     startCommand: gunicorn app:app  # or "node server.js"
     envVars:
       - key: GOOGLE_API_KEY
-        value: your_key_here
+        value: AIzaSyBhdHI1O3Fb5ewhip4ObnpZdGYM6x0L4DA
