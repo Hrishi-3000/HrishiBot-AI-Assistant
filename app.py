@@ -26,8 +26,8 @@ class HrishiBotWeb:
         
     def setup_constants(self):
         """Initialize all constant values"""
-        self.API_KEY = "AIzaSyBhdHI1O3Fb5ewhip4ObnpZdGYM6x0L4DA"
-        self.API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={self.API_KEY}"
+        self.API_KEY = "----------------------------"
+        self.API_URL = f"------------------key={self.API_KEY}"
         self.HEADERS = {"Content-Type": "application/json"}
         self.is_muted = False
         self.last_response = ""
